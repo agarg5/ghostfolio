@@ -7,6 +7,7 @@ import {
   User
 } from '@ghostfolio/common/interfaces';
 import { hasPermission, permissions } from '@ghostfolio/common/permissions';
+import { NotificationService } from '@ghostfolio/ui/notifications';
 import { DataService } from '@ghostfolio/ui/services';
 
 import {
@@ -19,8 +20,8 @@ import {
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { DeviceDetectorService } from 'ngx-device-detector';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+import { catchError, takeUntil } from 'rxjs/operators';
 
 @Component({
   imports: [GfPortfolioSummaryComponent, MatCardModule],
@@ -47,6 +48,7 @@ export class GfHomeSummaryComponent implements OnDestroy, OnInit {
     private dataService: DataService,
     private deviceService: DeviceDetectorService,
     private impersonationStorageService: ImpersonationStorageService,
+    private notificationService: NotificationService,
     private userService: UserService
   ) {
     this.info = this.dataService.fetchInfo();
@@ -68,6 +70,10 @@ export class GfHomeSummaryComponent implements OnDestroy, OnInit {
           );
 
           this.update();
+        } else {
+          // Handle case where user is not available
+          this.isLoading = false;
+          this.changeDetectorRef.markForCheck();
         }
       });
   }
@@ -109,7 +115,19 @@ export class GfHomeSummaryComponent implements OnDestroy, OnInit {
 
     this.dataService
       .fetchPortfolioDetails()
-      .pipe(takeUntil(this.unsubscribeSubject))
+      .pipe(
+        takeUntil(this.unsubscribeSubject),
+        catchError((error) => {
+          console.error('Error fetching portfolio details:', error);
+          this.isLoading = false;
+          this.summary = null;
+          this.notificationService.error(
+            $localize`Failed to load portfolio summary. Please try again later.`
+          );
+          this.changeDetectorRef.markForCheck();
+          return of({ summary: null });
+        })
+      )
       .subscribe(({ summary }) => {
         this.summary = summary;
         this.isLoading = false;
