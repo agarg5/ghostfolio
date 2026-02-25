@@ -1,5 +1,7 @@
+import { LayoutService } from '@ghostfolio/client/core/layout.service';
 import { UserService } from '@ghostfolio/client/services/user/user.service';
 import { TabConfiguration, User } from '@ghostfolio/common/interfaces';
+import { hasPermission, permissions } from '@ghostfolio/common/permissions';
 import { internalRoutes } from '@ghostfolio/common/routes/routes';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
@@ -7,7 +9,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { RouterModule } from '@angular/router';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { albumsOutline, analyticsOutline } from 'ionicons/icons';
+import {
+  albumsOutline,
+  analyticsOutline,
+  chatbubblesOutline
+} from 'ionicons/icons';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -29,6 +35,7 @@ export class GfZenPageComponent implements OnDestroy, OnInit {
   public constructor(
     private changeDetectorRef: ChangeDetectorRef,
     private deviceService: DeviceDetectorService,
+    private layoutService: LayoutService,
     private userService: UserService
   ) {
     this.userService.stateChanged
@@ -45,7 +52,19 @@ export class GfZenPageComponent implements OnDestroy, OnInit {
               iconName: 'albums-outline',
               label: internalRoutes.zen.subRoutes.holdings.title,
               routerLink: internalRoutes.zen.subRoutes.holdings.routerLink
-            }
+            },
+            ...(hasPermission(
+              this.user?.permissions,
+              permissions.accessAssistant
+            )
+              ? [
+                  {
+                    iconName: 'chatbubbles-outline',
+                    label: $localize`Chat`,
+                    onClick: () => this.layoutService.openAssistant()
+                  }
+                ]
+              : [])
           ];
           this.user = state.user;
 
@@ -53,7 +72,7 @@ export class GfZenPageComponent implements OnDestroy, OnInit {
         }
       });
 
-    addIcons({ albumsOutline, analyticsOutline });
+    addIcons({ albumsOutline, analyticsOutline, chatbubblesOutline });
   }
 
   public ngOnInit() {

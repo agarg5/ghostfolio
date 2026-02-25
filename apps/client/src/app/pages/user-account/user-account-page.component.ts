@@ -1,5 +1,7 @@
+import { LayoutService } from '@ghostfolio/client/core/layout.service';
 import { UserService } from '@ghostfolio/client/services/user/user.service';
 import { TabConfiguration, User } from '@ghostfolio/common/interfaces';
+import { hasPermission, permissions } from '@ghostfolio/common/permissions';
 import { internalRoutes } from '@ghostfolio/common/routes/routes';
 
 import {
@@ -13,7 +15,12 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { RouterModule } from '@angular/router';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { diamondOutline, keyOutline, settingsOutline } from 'ionicons/icons';
+import {
+  chatbubblesOutline,
+  diamondOutline,
+  keyOutline,
+  settingsOutline
+} from 'ionicons/icons';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -35,6 +42,7 @@ export class GfUserAccountPageComponent implements OnDestroy, OnInit {
   public constructor(
     private changeDetectorRef: ChangeDetectorRef,
     private deviceService: DeviceDetectorService,
+    private layoutService: LayoutService,
     private userService: UserService
   ) {
     this.userService.stateChanged
@@ -60,14 +68,31 @@ export class GfUserAccountPageComponent implements OnDestroy, OnInit {
               iconName: 'key-outline',
               label: internalRoutes.account.subRoutes.access.title,
               routerLink: internalRoutes.account.subRoutes.access.routerLink
-            }
+            },
+            ...(hasPermission(
+              this.user?.permissions,
+              permissions.accessAssistant
+            )
+              ? [
+                  {
+                    iconName: 'chatbubbles-outline',
+                    label: $localize`Chat`,
+                    onClick: () => this.layoutService.openAssistant()
+                  }
+                ]
+              : [])
           ];
 
           this.changeDetectorRef.markForCheck();
         }
       });
 
-    addIcons({ diamondOutline, keyOutline, settingsOutline });
+    addIcons({
+      chatbubblesOutline,
+      diamondOutline,
+      keyOutline,
+      settingsOutline
+    });
   }
 
   public ngOnInit() {

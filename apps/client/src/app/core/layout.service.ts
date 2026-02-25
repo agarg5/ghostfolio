@@ -12,14 +12,17 @@ export class LayoutService {
   public static readonly DEFAULT_NOTIFICATION_WIDTH = '75vw';
 
   public shouldReloadContent$: Observable<void>;
+  public openAssistant$: Observable<void>;
 
   private shouldReloadSubject = new Subject<void>();
+  private openAssistantSubject = new Subject<void>();
 
   public constructor(
     private deviceService: DeviceDetectorService,
     private notificationService: NotificationService
   ) {
     this.shouldReloadContent$ = this.shouldReloadSubject.asObservable();
+    this.openAssistant$ = this.openAssistantSubject.asObservable();
 
     const deviceType = this.deviceService.getDeviceInfo().deviceType;
 
@@ -38,5 +41,9 @@ export class LayoutService {
 
   public getShouldReloadSubject() {
     return this.shouldReloadSubject;
+  }
+
+  public openAssistant() {
+    this.openAssistantSubject.next();
   }
 }

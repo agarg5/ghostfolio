@@ -1,3 +1,4 @@
+import { LayoutService } from '@ghostfolio/client/core/layout.service';
 import { ImpersonationStorageService } from '@ghostfolio/client/services/impersonation-storage.service';
 import { UserService } from '@ghostfolio/client/services/user/user.service';
 import { TabConfiguration, User } from '@ghostfolio/common/interfaces';
@@ -19,6 +20,7 @@ import {
   albumsOutline,
   analyticsOutline,
   bookmarkOutline,
+  chatbubblesOutline,
   newspaperOutline,
   readerOutline
 } from 'ionicons/icons';
@@ -46,6 +48,7 @@ export class GfHomePageComponent implements OnDestroy, OnInit {
     private changeDetectorRef: ChangeDetectorRef,
     private deviceService: DeviceDetectorService,
     private impersonationStorageService: ImpersonationStorageService,
+    private layoutService: LayoutService,
     private userService: UserService
   ) {
     this.userService.stateChanged
@@ -89,7 +92,19 @@ export class GfHomePageComponent implements OnDestroy, OnInit {
               )
                 ? internalRoutes.home.subRoutes.marketsPremium.routerLink
                 : internalRoutes.home.subRoutes.markets.routerLink
-            }
+            },
+            ...(hasPermission(
+              this.user?.permissions,
+              permissions.accessAssistant
+            )
+              ? [
+                  {
+                    iconName: 'chatbubbles-outline',
+                    label: $localize`Chat`,
+                    onClick: () => this.layoutService.openAssistant()
+                  }
+                ]
+              : [])
           ];
 
           this.changeDetectorRef.markForCheck();
@@ -100,6 +115,7 @@ export class GfHomePageComponent implements OnDestroy, OnInit {
       albumsOutline,
       analyticsOutline,
       bookmarkOutline,
+      chatbubblesOutline,
       newspaperOutline,
       readerOutline
     });

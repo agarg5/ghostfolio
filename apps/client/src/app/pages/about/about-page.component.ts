@@ -1,3 +1,4 @@
+import { LayoutService } from '@ghostfolio/client/core/layout.service';
 import { UserService } from '@ghostfolio/client/services/user/user.service';
 import { TabConfiguration, User } from '@ghostfolio/common/interfaces';
 import { hasPermission, permissions } from '@ghostfolio/common/permissions';
@@ -16,6 +17,7 @@ import { RouterModule } from '@angular/router';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
+  chatbubblesOutline,
   documentTextOutline,
   happyOutline,
   informationCircleOutline,
@@ -47,6 +49,7 @@ export class AboutPageComponent implements OnDestroy, OnInit {
     private changeDetectorRef: ChangeDetectorRef,
     private dataService: DataService,
     private deviceService: DeviceDetectorService,
+    private layoutService: LayoutService,
     private userService: UserService
   ) {
     const { globalPermissions } = this.dataService.fetchInfo();
@@ -103,9 +106,21 @@ export class AboutPageComponent implements OnDestroy, OnInit {
           label: publicRoutes.about.subRoutes.ossFriends.title,
           routerLink: publicRoutes.about.subRoutes.ossFriends.routerLink
         });
+
+        if (
+          state?.user &&
+          hasPermission(state.user?.permissions, permissions.accessAssistant)
+        ) {
+          this.tabs.push({
+            iconName: 'chatbubbles-outline',
+            label: $localize`Chat`,
+            onClick: () => this.layoutService.openAssistant()
+          });
+        }
       });
 
     addIcons({
+      chatbubblesOutline,
       documentTextOutline,
       happyOutline,
       informationCircleOutline,

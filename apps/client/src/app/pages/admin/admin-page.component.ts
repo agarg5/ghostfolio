@@ -1,12 +1,16 @@
-import { TabConfiguration } from '@ghostfolio/common/interfaces';
+import { LayoutService } from '@ghostfolio/client/core/layout.service';
+import { UserService } from '@ghostfolio/client/services/user/user.service';
+import { TabConfiguration, User } from '@ghostfolio/common/interfaces';
+import { hasPermission, permissions } from '@ghostfolio/common/permissions';
 import { internalRoutes } from '@ghostfolio/common/routes/routes';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { RouterModule } from '@angular/router';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
+  chatbubblesOutline,
   flashOutline,
   peopleOutline,
   readerOutline,
@@ -14,6 +18,8 @@ import {
   settingsOutline
 } from 'ionicons/icons';
 import { DeviceDetectorService } from 'ngx-device-detector';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   host: { class: 'page has-tabs' },
@@ -25,9 +31,17 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 export class AdminPageComponent implements OnInit {
   public deviceType: string;
   public tabs: TabConfiguration[] = [];
+  public user: User;
 
-  public constructor(private deviceService: DeviceDetectorService) {
+  private unsubscribeSubject = new Subject<void>();
+
+  public constructor(
+    private deviceService: DeviceDetectorService,
+    private layoutService: LayoutService,
+    private userService: UserService
+  ) {
     addIcons({
+      chatbubblesOutline,
       flashOutline,
       peopleOutline,
       readerOutline,
@@ -39,36 +53,62 @@ export class AdminPageComponent implements OnInit {
   public ngOnInit() {
     this.deviceType = this.deviceService.getDeviceInfo().deviceType;
 
-    this.tabs = [
-      {
-        iconName: 'reader-outline',
-        label: $localize`Overview`,
-        routerLink: internalRoutes.adminControl.routerLink
-      },
-      {
-        iconName: 'settings-outline',
-        label:
-          internalRoutes.adminControl.subRoutes.settings.title +
-          '<span class="badge badge-pill badge-secondary ml-2 text-uppercase">' +
-          $localize`new` +
-          '</span>',
-        routerLink: internalRoutes.adminControl.subRoutes.settings.routerLink
-      },
-      {
-        iconName: 'server-outline',
-        label: internalRoutes.adminControl.subRoutes.marketData.title,
-        routerLink: internalRoutes.adminControl.subRoutes.marketData.routerLink
-      },
-      {
-        iconName: 'flash-outline',
-        label: internalRoutes.adminControl.subRoutes.jobs.title,
-        routerLink: internalRoutes.adminControl.subRoutes.jobs.routerLink
-      },
-      {
-        iconName: 'people-outline',
-        label: internalRoutes.adminControl.subRoutes.users.title,
-        routerLink: internalRoutes.adminControl.subRoutes.users.routerLink
-      }
-    ];
+    this.userService.stateChanged
+      .pipe(takeUntil(this.unsubscribeSubject))
+      .subscribe((state) => {
+        if (state?.user) {
+          this.user = state.user;
+        }
+
+        this.tabs = [
+          {
+            iconName: 'reader-outline',
+            label: $localize`Overview`,
+            routerLink: internalRoutes.adminControl.routerLink
+          },
+          {
+            iconName: 'settings-outline',
+            label:
+              internalRoutes.adminControl.subRoutes.settings.title +
+              '<span class="badge badge-pill badge-secondary ml-2 text-uppercase">' +
+              $localize`new` +
+              '</span>',
+            routerLink: internalRoutes.adminControl.subRoutes.settings.routerLink
+          },
+          {
+            iconName: 'server-outline',
+            label: internalRoutes.adminControl.subRoutes.marketData.title,
+            routerLink:
+              internalRoutes.adminControl.subRoutes.marketData.routerLink
+          },
+          {
+            iconName: 'flash-outline',
+            label: internalRoutes.adminControl.subRoutes.jobs.title,
+            routerLink: internalRoutes.adminControl.subRoutes.jobs.routerLink
+          },
+          {
+            iconName: 'people-outline',
+            label: internalRoutes.adminControl.subRoutes.users.title,
+            routerLink: internalRoutes.adminControl.subRoutes.users.routerLink
+          },
+          ...(hasPermission(
+            this.user?.permissions,
+            permissions.accessAssistant
+          )
+            ? [
+                {
+                  iconName: 'chatbubbles-outline',
+                  label: $localize`Chat`,
+                  onClick: () => this.layoutService.openAssistant()
+                }
+              ]
+            : [])
+        ];
+      });
+  }
+
+  public ngOnDestroy() {
+    this.unsubscribeSubject.next();
+    this.unsubscribeSubject.complete();
   }
 }

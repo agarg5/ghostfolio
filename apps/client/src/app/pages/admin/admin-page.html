@@ -10,21 +10,35 @@
 >
   @for (tab of tabs; track tab) {
     @if (tab.showCondition !== false) {
-      <a
-        #rla="routerLinkActive"
-        class="no-min-width px-3"
-        mat-tab-link
-        routerLinkActive
-        [active]="rla.isActive"
-        [routerLink]="tab.routerLink"
-        [routerLinkActiveOptions]="{ exact: true }"
-      >
-        <ion-icon
-          [name]="tab.iconName"
-          [size]="deviceType === 'mobile' ? 'large' : 'small'"
-        />
-        <div class="d-none d-sm-block ml-2" [innerHTML]="tab.label"></div>
-      </a>
+      @if (tab.onClick) {
+        <button
+          class="no-min-width px-3"
+          mat-tab-link
+          (click)="tab.onClick()"
+        >
+          <ion-icon
+            [name]="tab.iconName"
+            [size]="deviceType === 'mobile' ? 'large' : 'small'"
+          />
+          <div class="d-none d-sm-block ml-2" [innerHTML]="tab.label"></div>
+        </button>
+      } @else {
+        <a
+          #rla="routerLinkActive"
+          class="no-min-width px-3"
+          mat-tab-link
+          routerLinkActive
+          [active]="rla.isActive"
+          [routerLink]="tab.routerLink"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <ion-icon
+            [name]="tab.iconName"
+            [size]="deviceType === 'mobile' ? 'large' : 'small'"
+          />
+          <div class="d-none d-sm-block ml-2" [innerHTML]="tab.label"></div>
+        </a>
+      }
     }
   }
 </nav>

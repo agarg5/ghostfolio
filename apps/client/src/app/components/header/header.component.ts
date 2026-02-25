@@ -152,6 +152,14 @@ export class GfHeaderComponent implements OnChanges {
         this.impersonationId = impersonationId;
       });
 
+    this.layoutService.openAssistant$
+      .pipe(takeUntil(this.unsubscribeSubject))
+      .subscribe(() => {
+        if (this.hasPermissionToAccessAssistant) {
+          this.assistentMenuTriggerElement?.openMenu();
+        }
+      });
+
     addIcons({
       closeOutline,
       logoGithub,
