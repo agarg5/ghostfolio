@@ -93,6 +93,39 @@ export class GfHomePageComponent implements OnDestroy, OnInit {
           ];
 
           this.changeDetectorRef.markForCheck();
+        } else {
+          // Initialize tabs with default routes even if user is not yet loaded
+          // This prevents blank screen while user data is being fetched
+          if (this.tabs.length === 0) {
+            this.tabs = [
+              {
+                iconName: 'analytics-outline',
+                label: internalRoutes.home.title,
+                routerLink: internalRoutes.home.routerLink
+              },
+              {
+                iconName: 'albums-outline',
+                label: internalRoutes.home.subRoutes.holdings.title,
+                routerLink: internalRoutes.home.subRoutes.holdings.routerLink
+              },
+              {
+                iconName: 'reader-outline',
+                label: internalRoutes.home.subRoutes.summary.title,
+                routerLink: internalRoutes.home.subRoutes.summary.routerLink
+              },
+              {
+                iconName: 'bookmark-outline',
+                label: internalRoutes.home.subRoutes.watchlist.title,
+                routerLink: internalRoutes.home.subRoutes.watchlist.routerLink
+              },
+              {
+                iconName: 'newspaper-outline',
+                label: internalRoutes.home.subRoutes.markets.title,
+                routerLink: internalRoutes.home.subRoutes.markets.routerLink
+              }
+            ];
+            this.changeDetectorRef.markForCheck();
+          }
         }
       });
 
