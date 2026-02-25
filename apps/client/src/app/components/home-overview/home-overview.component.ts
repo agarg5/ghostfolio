@@ -91,13 +91,11 @@ export class GfHomeOverviewComponent implements OnDestroy, OnInit {
   public ngOnInit() {
     this.deviceType = this.deviceService.getDeviceInfo().deviceType;
 
-    if (this.user?.settings) {
-      this.showDetails =
-        !this.user.settings.isRestrictedView &&
-        this.user.settings.viewMode !== 'ZEN';
+    this.showDetails =
+      !this.user.settings.isRestrictedView &&
+      this.user.settings.viewMode !== 'ZEN';
 
-      this.unit = this.showDetails ? this.user.settings.baseCurrency : '%';
-    }
+    this.unit = this.showDetails ? this.user.settings.baseCurrency : '%';
 
     this.impersonationStorageService
       .onChangeHasImpersonation()
@@ -121,10 +119,6 @@ export class GfHomeOverviewComponent implements OnDestroy, OnInit {
   }
 
   private update() {
-    if (!this.user) {
-      return;
-    }
-
     this.historicalDataItems = null;
     this.isLoadingPerformance = true;
 
