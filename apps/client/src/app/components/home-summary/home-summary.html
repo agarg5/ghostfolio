@@ -4,43 +4,20 @@
     <div class="col-xs-12 col-md-8 offset-md-2">
       <mat-card appearance="outlined">
         <mat-card-content>
-          @if (isLoading) {
-            <gf-portfolio-summary
-              [baseCurrency]="user?.settings?.baseCurrency"
-              [deviceType]="deviceType"
-              [hasImpersonationId]="hasImpersonationId"
-              [hasPermissionToUpdateUserSettings]="
-                !hasImpersonationId && hasPermissionToUpdateUserSettings
-              "
-              [isLoading]="true"
-              [language]="user?.settings?.language"
-              [locale]="user?.settings?.locale"
-              [summary]="summary"
-              [user]="user"
-              (emergencyFundChanged)="onChangeEmergencyFund($event)"
-            />
-          } @else if (summary) {
-            <gf-portfolio-summary
-              [baseCurrency]="user?.settings?.baseCurrency"
-              [deviceType]="deviceType"
-              [hasImpersonationId]="hasImpersonationId"
-              [hasPermissionToUpdateUserSettings]="
-                !hasImpersonationId && hasPermissionToUpdateUserSettings
-              "
-              [isLoading]="false"
-              [language]="user?.settings?.language"
-              [locale]="user?.settings?.locale"
-              [summary]="summary"
-              [user]="user"
-              (emergencyFundChanged)="onChangeEmergencyFund($event)"
-            />
-          } @else {
-            <div class="text-center py-4">
-              <p class="text-muted" i18n>
-                Unable to load portfolio summary. Please try refreshing the page.
-              </p>
-            </div>
-          }
+          <gf-portfolio-summary
+            [baseCurrency]="user?.settings?.baseCurrency"
+            [deviceType]="deviceType"
+            [hasImpersonationId]="hasImpersonationId"
+            [hasPermissionToUpdateUserSettings]="
+              !hasImpersonationId && hasPermissionToUpdateUserSettings
+            "
+            [isLoading]="isLoading"
+            [language]="user?.settings?.language"
+            [locale]="user?.settings?.locale"
+            [summary]="summary"
+            [user]="user"
+            (emergencyFundChanged)="onChangeEmergencyFund($event)"
+          />
         </mat-card-content>
       </mat-card>
     </div>
